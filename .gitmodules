@@ -1,0 +1,9 @@
+[submodule "plugin/GitPython"]
+	path = plugin/GitPython
+	url = git@github.com:gitpython-developers/GitPython.git
+[submodule "pythonx/netrangerGit/GitPython"]
+	path = pythonx/netrangerGit/GitPython
+	url = git@github.com:gitpython-developers/GitPython.git
+[submodule "pythonx/netrangerGit/--resursive"]
+	path = pythonx/netrangerGit/--resursive
+	url = git@github.com:gitpython-developers/GitPython.git
