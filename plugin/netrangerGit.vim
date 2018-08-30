@@ -15,14 +15,29 @@ if !has('python3') && !has('python')
     finish
 endif
 
-let s:pyx = 'python3 '
-exec s:pyx 'from netranger.api import RegisterHooker'
-exec s:pyx 'from netranger.api import NETRApi'
-exec s:pyx 'from netrangerGit.netrangerGit import NETRGit'
-exec s:pyx 'netrGit = NETRGit(NETRApi)'
-exec s:pyx 'RegisterHooker(netrGit.node_highlight_content_l)'
-exec s:pyx 'RegisterHooker(netrGit.render_begin)'
-exec s:pyx 'RegisterHooker(netrGit.render_end)'
 
+if has('python3')
+    let s:pyx = 'python3 '
+else
+    let s:pyx = 'python '
+endif
+
+exec s:pyx 'from netranger import api'
+exec s:pyx 'from netrangerGit.netrangerGit import NETRGit'
+exec s:pyx 'netrGit = NETRGit(api.NETRApi)'
+exec s:pyx 'api.RegisterHooker(netrGit.node_highlight_content_l)'
+exec s:pyx 'api.RegisterHooker(netrGit.render_begin)'
+exec s:pyx 'api.RegisterHooker(netrGit.render_end)'
+exec s:pyx 'api.RegisterKeyMaps([
+            \ ("cc", netrGit.commit),
+            \ ("ca", netrGit.commit_amend),
+            \ ("ed", netrGit.ediff),
+            \ ("=", netrGit.to_next_state),
+            \ ("-", netrGit.to_prev_state),
+            \ ])'
+
+func! _NETRGitDiffStage()
+    exec s:pyx 'netrGit.diff_stage()'
+endfunc
 
 let &cpo = s:save_cpo
