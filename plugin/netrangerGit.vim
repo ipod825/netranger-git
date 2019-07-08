@@ -16,25 +16,18 @@ if !has('python3') && !has('python')
 endif
 
 
-if has('python3')
-    let s:pyx = 'python3 '
-else
-    let s:pyx = 'python '
-endif
-
-exec s:pyx 'from netranger import api'
-exec s:pyx 'from netrangerGit.netrangerGit import NETRGit'
-exec s:pyx 'netrGit = NETRGit(api.NETRApi)'
-exec s:pyx 'api.RegisterHooker(netrGit.node_highlight_content_l)'
-exec s:pyx 'api.RegisterHooker(netrGit.render_begin)'
-exec s:pyx 'api.RegisterHooker(netrGit.render_end)'
-exec s:pyx 'api.RegisterKeyMaps([
-            \ ("cc", netrGit.commit),
-            \ ("ca", netrGit.commit_amend),
-            \ ("ed", netrGit.ediff),
-            \ ("=", netrGit.to_next_state),
-            \ ("-", netrGit.to_prev_state),
-            \ ])'
+python3 from netranger import api
+python3 from netrangerGit.netrangerGit import NETRGit
+python3 from netranger.api import NETRApi
+python3 netrGit = NETRGit(NETRApi)
+python3 NETRApi.RegisterHooker(netrGit.node_highlight_content_l)
+python3 NETRApi.RegisterHooker(netrGit.render_begin)
+python3 NETRApi.RegisterHooker(netrGit.render_end)
+python3 NETRApi.map("cc", netrGit.commit, check=True)
+python3 NETRApi.map("ca", netrGit.commit_amend, check=True)
+python3 NETRApi.map("ed", netrGit.ediff, check=True)
+python3 NETRApi.map("=", netrGit.to_next_state, check=True)
+python3 NETRApi.map("-", netrGit.to_prev_state, check=True)
 
 func! _NETRGitDiffStage()
     exec s:pyx 'netrGit.diff_stage()'

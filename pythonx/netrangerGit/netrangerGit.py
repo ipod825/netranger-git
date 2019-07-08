@@ -1,13 +1,13 @@
-import vim
-import re
 import os
 import random
-import tempfile
+import re
 import shutil
+import tempfile
+
+import vim
+from netranger import Vim
 from netranger.enum import Enum
-from netranger.Vim import VimUserInput
-from netranger.Vim import VimEcho
-from netranger.util import Shell
+from netranger.shell import Shell
 
 
 class Repo(object):
@@ -88,8 +88,8 @@ class Repo(object):
 
     def unmodify(self, fullpath):
 
-        ans = VimUserInput("This will discard any made changes. Proceed "
-                           "anyway? (y/n)")
+        ans = Vim.UserInput("This will discard any made changes. Proceed "
+                            "anyway? (y/n)")
         if ans == 'y':
             self.run_cmd('checkout {}'.format(fullpath))
 
@@ -98,7 +98,7 @@ class Repo(object):
             # TODO Should we check if already pushed?
             return self.run_cmd('commit --amend --no-edit')
         else:
-            with open(self.commit_edit_msg) as file:
+            with open(self.commit_edit_msg, 'w') as file:
                 lines = []
                 for line in file:
                     line = line.strip()
@@ -188,7 +188,7 @@ class NETRGit(object):
         return False
 
     def to_next_state(self):
-        cur_node = self.api.cur_node
+        cur_node = self.api.cur_node()
         if self.set_cur_repo(cur_node.fullpath):
             _, state = self.cur_repo.get_prev_and_next_state(cur_node.fullpath)
             if state == Repo.State.STAGED:
@@ -200,7 +200,7 @@ class NETRGit(object):
             self.api.render()
 
     def to_prev_state(self):
-        cur_node = self.api.cur_node
+        cur_node = self.api.cur_node()
         if self.set_cur_repo(cur_node.fullpath):
             state, _ = self.cur_repo.get_prev_and_next_state(cur_node.fullpath)
             if state == Repo.State.MODIFIED:
@@ -216,7 +216,7 @@ class NETRGit(object):
 
     def commit(self):
         bufNum = vim.current.buffer.number
-        Shell.run('GIT_EDITOR=false git commit', log_if_error=False)
+        Shell.run('GIT_EDITOR=false git commit')
         vim.command('tabe {}'.format(self.cur_repo.commit_edit_msg))
         vim.command('setlocal bufhidden=wipe')
         vim.command(
@@ -226,15 +226,15 @@ class NETRGit(object):
     def commit_amend(self):
         msg = self.cur_repo.commit(amend=True)
         self.api.render()
-        VimEcho(msg)
+        Vim.Echo(msg)
 
     def post_commit(self, bufNum):
         msg = self.cur_repo.commit()
         self.api.render(bufNum)
-        VimEcho(msg)
+        Vim.Echo(msg)
 
     def ediff(self):
-        cur_node = self.api.cur_node
+        cur_node = self.api.cur_node()
         basename = os.path.basename(cur_node.fullpath)
         if cur_node.is_DIR:
             return
